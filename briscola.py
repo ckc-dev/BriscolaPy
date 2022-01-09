@@ -60,10 +60,10 @@ class Player:
         """
         Pick a card from the deck.
 
-        Picks a random card from the deck, sets the player to be it's owner,
-        adds it to the player's hand, and prints it.
+        Picks a card from the deck, sets the player to be it's owner, adds it
+        to the player's hand, and prints it.
         """
-        card = DECK.pop(DECK.index(random.choice(DECK)))
+        card = DECK.pop(0)
         card.owner = self
 
         self.hand.append(card)
