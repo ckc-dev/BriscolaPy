@@ -5,42 +5,16 @@ This program simulates a game of Briscola between a number of CPU players,
 ranging from 2 to 4.
 """
 
+import argparse
 import random
-import sys
-
-MIN_NUMBER_OF_PLAYERS = 2
-MAX_NUMBER_OF_PLAYERS = 4
-CARDS_PER_PLAYER = 3
-
-# Cards use the following format: `"NAME": (POINTS, PRIORITY)`, where `POINTS`
-# is the number of points that goes to players, and `PRIORITY` is the card
-# priority, used to compare cards and decide which should win a round.
-CARDS = {
-    "1": (11, 9),
-    "2": (0,  0),
-    "3": (10, 8),
-    "4": (0,  1),
-    "5": (0,  2),
-    "6": (0,  3),
-    "7": (0,  4),
-    "F": (2,  5),  # Fante.
-    "C": (3,  6),  # Cavallo.
-    "R": (4,  7)   # Re.
-}
-SUITS = [
-    "BASTONI",
-    "COPPE",
-    "DENARI",
-    "SPADE"
-]
 
 
 class Player:
     """Defines a player object."""
 
-    def __init__(self):
+    def __init__(self, name):
         """Initialize instance."""
-        self.name = ""
+        self.name = name
         self.hand = []   # Player's hand of cards.
         self.stack = []  # Player's stack of won cards.
         self.points = 0
@@ -164,14 +138,46 @@ def winning_card(cards, lead_card, secondary_lead=None):
     return max_card(matches) if matches else winning_card(cards, secondary_lead)
 
 
-# Initialize and limit the number of players.
-number_of_players = int(sys.argv[1])
+# Cards use the following format: `"NAME": (POINTS, PRIORITY)`, where `POINTS`
+# is the number of points that goes to players, and `PRIORITY` is the card
+# priority, used to compare cards and decide which should win a round.
+CARDS = {
+    "1": (11, 9),
+    "2": (0,  0),
+    "3": (10, 8),
+    "4": (0,  1),
+    "5": (0,  2),
+    "6": (0,  3),
+    "7": (0,  4),
+    "F": (2,  5),  # Fante.
+    "C": (3,  6),  # Cavallo.
+    "R": (4,  7)   # Re.
+}
+SUITS = [
+    "BASTONI",
+    "COPPE",
+    "DENARI",
+    "SPADE"
+]
+MIN_NUMBER_OF_PLAYERS = 2
+MAX_NUMBER_OF_PLAYERS = 4
+CARDS_PER_PLAYER = 3
+PARSER = argparse.ArgumentParser(description=__doc__)
+PARSER.add_argument(
+    'players',
+    metavar='players',
+    type=str,
+    nargs='+',
+    help='Player names'
+)
+args = PARSER.parse_args()
+
+# Initialize and limit number of players.
+number_of_players = len(args.players)
 assert MIN_NUMBER_OF_PLAYERS <= number_of_players <= MAX_NUMBER_OF_PLAYERS
 
 # Generate a list of players.
-players = [Player() for _ in range(number_of_players)]
-for i, player in enumerate(players, 1):
-    player.name = input(f"Player {i} name: ")
+players = [Player(player_name) for player_name in args.players]
 
 # Generate and shuffle a deck of cards.
 DECK = [Card(name, suit, points, priority)
