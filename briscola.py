@@ -12,6 +12,7 @@ MIN_NUMBER_OF_PLAYERS = 2
 MAX_NUMBER_OF_PLAYERS = 4
 CARDS_PER_PLAYER = 3
 CARDS = {
+    # "NAME": POINTS
     "1": 11,
     "2": 0,
     "3": 10,
@@ -19,9 +20,9 @@ CARDS = {
     "5": 0,
     "6": 0,
     "7": 0,
-    "F": 2,
-    "C": 3,
-    "R": 4
+    "F": 2,  # Fante.
+    "C": 3,  # Cavallo.
+    "R": 4   # Re.
 }
 SUITS = [
     "BASTONI",
