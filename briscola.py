@@ -100,11 +100,11 @@ class Player:
 class Card:
     """Defines a card object."""
 
-    def __init__(self, name, suit, value):
+    def __init__(self, name, suit, points):
         """Initialize instance."""
         self.name = name
         self.suit = suit
-        self.points = value
+        self.points = points
         self.value = 0
         self.owner = None
 
