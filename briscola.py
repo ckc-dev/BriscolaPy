@@ -109,13 +109,8 @@ class Card:
         self.value = 0
         self.owner = None
 
-        if self.name == "1":
-            self.value == self.points
-        else:
-            try:
-                self.value = int(self.name)
-            except ValueError:
-                self.value = self.points
+        if self.points == 0:
+            self.value = int(self.name)
 
     def __str__(self):
         """Define string representation of an instance."""
