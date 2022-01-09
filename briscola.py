@@ -11,18 +11,21 @@ import sys
 MIN_NUMBER_OF_PLAYERS = 2
 MAX_NUMBER_OF_PLAYERS = 4
 CARDS_PER_PLAYER = 3
+
+# Cards use the following format: `"NAME": (POINTS, PRIORITY)`, where `POINTS`
+# is the number of points that goes to players, and `PRIORITY` is the card
+# priority, used to compare cards and decide which should win a round.
 CARDS = {
-    # "NAME": POINTS
-    "1": 11,
-    "2": 0,
-    "3": 10,
-    "4": 0,
-    "5": 0,
-    "6": 0,
-    "7": 0,
-    "F": 2,  # Fante.
-    "C": 3,  # Cavallo.
-    "R": 4   # Re.
+    "1": (11, 9),
+    "2": (0,  0),
+    "3": (10, 8),
+    "4": (0,  1),
+    "5": (0,  2),
+    "6": (0,  3),
+    "7": (0,  4),
+    "F": (2,  5),  # Fante.
+    "C": (3,  6),  # Cavallo.
+    "R": (4,  7)   # Re.
 }
 SUITS = [
     "BASTONI",
@@ -101,16 +104,13 @@ class Player:
 class Card:
     """Defines a card object."""
 
-    def __init__(self, name, suit, points):
+    def __init__(self, name, suit, points, priority):
         """Initialize instance."""
         self.name = name
         self.suit = suit
         self.points = points
-        self.value = 0
+        self.priority = priority
         self.owner = None
-
-        if self.points == 0:
-            self.value = int(self.name)
 
     def __str__(self):
         """Define string representation of an instance."""
@@ -119,24 +119,16 @@ class Card:
 
 def max_card(cards):
     """
-    Get the max card from a list of cards.
-
-    Returns the card with the highest number of points from a list of cards.
-    If more than one card has that number of points then the card with the
-    highest value among those is returned.
+    Get the card with the highest priority from a list of cards.
 
     Args:
-        cards (Card): List of cards to get max card from.
+        cards (Card): List of cards to get highest priority card from.
 
     Returns:
-        Card: Max card.
+        Card: Max priority card.
     """
-    max_points_card = max(cards, key=lambda card: card.points)
-    cards = [c for c in cards if c.points == max_points_card.points]
-
-    if len(cards) > 1:
-        max_value_card = max(cards, key=lambda card: card.value)
-        cards = [c for c in cards if c.value == max_value_card.value]
+    max_priority_card = max(cards, key=lambda card: card.priority)
+    cards = [c for c in cards if c.priority == max_priority_card.priority]
 
     return cards[0]
 
@@ -182,7 +174,8 @@ for i, player in enumerate(players, 1):
     player.name = input(f"Player {i} name: ")
 
 # Generate and shuffle a deck of cards.
-DECK = [Card(n, s, p) for s in SUITS for n, p in CARDS.items()]
+DECK = [Card(name, suit, points, priority)
+        for suit in SUITS for name, (points, priority) in CARDS.items()]
 random.shuffle(DECK)
 
 # Remove some cards from the deck if there are three players, as per the rules
