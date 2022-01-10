@@ -32,7 +32,9 @@ class Player:
         if self.is_cpu:
             card = self.hand.pop(self.hand.index(random.choice(self.hand)))
         else:
-            index = int(input("Pick a card: "))
+            # Remove 1 from the value passed by the user, so that cards start
+            # with a 1, not a 0.
+            index = int(input("Pick a card (use 1,2,3...): ")) - 1
             card = self.hand.pop(index)
 
         print(f"{self} plays a {card}!")
