@@ -52,12 +52,19 @@ class Player:
         card.owner = self
 
         self.hand.append(card)
-        print(f"{self} picks a {card}!")
+
+        if args.verbose:
+            print(f"{self} picks a {card}!")
 
     def print_cards(self):
         """Print the cards on the player's hand."""
-        print(f"{self} has no cards left." if self.hand == 0 else
-              f"{self}'s cards: " + ", ".join([str(c) for c in self.hand]))
+        cards = ", ".join([str(c) for c in self.hand])
+
+        if args.verbose:
+            print(f"{self} has no cards left." if not cards else
+                  f"{self}'s cards: {cards}")
+        elif not self.is_cpu:
+            print(f"Cards: {cards}")
 
     def declare_round_victory(self):
         """Print a message declaring the player won this round."""
@@ -79,7 +86,7 @@ class Player:
 
     def __str__(self):
         """Define string representation of an instance."""
-        return f"[{self.points}] {self.name}"
+        return (f"[{self.points}] " if args.verbose else "") + self.name
 
 
 class Card:
@@ -95,7 +102,8 @@ class Card:
 
     def __str__(self):
         """Define string representation of an instance."""
-        return f"{self.name} of {self.suit.lower()} ({self.points})"
+        return ((f"[{self.points}] " if args.verbose else "")
+                + f"{self.name} of {self.suit.lower()}")
 
 
 def max_card(cards):
@@ -185,6 +193,12 @@ PARSER.add_argument(
     nargs='+',
     help='A list of names for CPU players.'
 )
+PARSER.add_argument(
+    '-v',
+    '--verbose',
+    action='store_true',
+    help='Show detailed information about what is happening.'
+)
 args = PARSER.parse_args()
 
 # Initialize and limit number of players.
@@ -240,11 +254,14 @@ while total_card_count:
     # Print round information.
     print()
     print(f"Starting round {round}!")
-    print(f"Total cards: {total_card_count}"
-          + f" | Deck: {len(DECK)}"
-          + f" | Hands: {hand_card_count}")
+
+    if args.verbose:
+        print(f"Total cards: {total_card_count}"
+              + f" | Deck: {len(DECK)}"
+              + f" | Hands: {hand_card_count}")
+        print("Player order: " + ", ".join(str(p) for p in players))
+
     print(f"Lead card: {lead_card}")
-    print("Player order: " + ", ".join(str(p) for p in players))
     print()
 
     # Reset the number of cards on players' hands and the list of cards played
@@ -254,7 +271,7 @@ while total_card_count:
 
     # Each player plays a card, which gets added to this round's played cards.
     for player in players:
-        print(f"It's {player.name}'s turn!")
+        print(f"It's {player}'s turn!")
         player.print_cards()
         card = player.play_card()
         played_cards.append(card)
@@ -263,7 +280,8 @@ while total_card_count:
     # is used instead of the main lead card if none of the played cards matched
     # with it.
     secondary_lead = played_cards[0]
-    print(f"Secondary lead card: {secondary_lead}")
+    if args.verbose:
+        print(f"Secondary lead card: {secondary_lead}")
 
     # Pick this round's winner, add the cards played this round to their stack,
     # and make them declare a victory.
@@ -291,4 +309,4 @@ while total_card_count:
 
 # Once the game is done, pick and print the overall game winner.
 game_winner = max(players, key=lambda player: player.points)
-print(f"\n{game_winner.name} wins the game with {game_winner.points} points!")
+print(f"\n{game_winner} wins the game with {game_winner.points} points!")
