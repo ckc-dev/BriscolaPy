@@ -1,8 +1,8 @@
 """
 The classic Mediterranean trick-taking game. Now in your terminal.
 
-This program simulates a game of Briscola between a number of CPU players,
-ranging from 2 to 4.
+This program simulates a game of Briscola between a number of players, ranging
+from 2 to 4, including CPU players.
 """
 
 import argparse
@@ -22,9 +22,11 @@ class Player:
 
     def play_card(self, index=None):
         """
-        Play a card.
+        Remove a random card from the player's hand and return it.
 
-        Removes a random card from the player's hand, prints and returns it.
+        Args:
+            index (int, optional): Index of card to be returned. If this is not
+            passed, a random card is returned instead. Defaults to None.
 
         Returns:
             Card: Played card.
@@ -36,8 +38,8 @@ class Player:
         """
         Pick a card from the deck.
 
-        Picks a card from the deck, sets the player to be it's owner, adds it
-        to the player's hand, and prints it.
+        Picks a card from the deck, sets the player to be its owner, adds it to
+        the player's hand, and returns it.
         """
         card = DECK.pop(0)
         card.owner = self
@@ -153,6 +155,7 @@ MIN_NUMBER_OF_PLAYERS = 2
 MAX_NUMBER_OF_PLAYERS = 4
 CARDS_PER_PLAYER = 3
 PARSER = argparse.ArgumentParser(description=__doc__)
+
 PARSER.add_argument(
     'players',
     metavar='Player names.',
@@ -174,6 +177,7 @@ PARSER.add_argument(
     action='store_true',
     help='Show detailed information about what is happening.'
 )
+
 args = PARSER.parse_args()
 
 # Initialize and limit number of players.
@@ -189,8 +193,8 @@ if cpu_player_names:
 try:
     assert MIN_NUMBER_OF_PLAYERS <= number_of_players <= MAX_NUMBER_OF_PLAYERS
 except AssertionError:
-    print(f"Number of players must be between {MIN_NUMBER_OF_PLAYERS}"
-          + f" and {MAX_NUMBER_OF_PLAYERS}.")
+    print("Number of players must be between"
+          + f" {MIN_NUMBER_OF_PLAYERS} and {MAX_NUMBER_OF_PLAYERS}.")
     quit()
 
 # Generate a list of players.
@@ -231,6 +235,11 @@ total_card_count = len(DECK) + hand_card_count
 # As long as there are cards available, play rounds.
 round = 1
 while total_card_count:
+    # Reset round variables.
+    secondary_lead = None
+    hand_card_count = 0
+    played_cards = []
+
     # Print round information.
     print()
     print(f"Starting round {round}!")
@@ -244,38 +253,35 @@ while total_card_count:
     print(f"Lead card: {lead_card}")
     print()
 
-    # Reset the number of cards on players' hands and the list of cards played
-    # on this round.
-    secondary_lead = None
-    hand_card_count = 0
-    played_cards = []
-
-    # Each player plays a card, which gets added to this round's played cards.
+    # Each player plays a turn:
     for player in players:
+        # Print turn information.
         print(f"It's {player}'s turn!")
 
-        if secondary_lead and args.verbose:
-            print(f"Secondary lead card: {secondary_lead}")
-
-        cards = ", ".join([str(c) for c in player.hand])
+        player_cards = ", ".join([str(c) for c in player.hand])
 
         if args.verbose:
-            print(f"{player} has no cards left." if not cards else
-                  f"{player}'s cards: {cards}")
-        elif not player.is_cpu:
-            print(f"Cards: {cards}")
+            if secondary_lead:
+                print(f"Secondary lead card: {secondary_lead}")
 
+            print(f"{player} has no cards left." if not player_cards else
+                  f"{player}'s cards: {player_cards}")
+        elif not player.is_cpu:
+            print(f"Cards: {player_cards}")
+
+        # Play a card.
         played_card = None
-        while not played_card:
-            try:
-                if player.is_cpu:
-                    played_card = player.play_card()
-                else:
+        if player.is_cpu:
+            played_card = player.play_card()
+        else:
+            while not played_card:
+                try:
                     index = int(input("Pick a card (use 1,2,3...): ")) - 1
                     played_card = player.play_card(index)
-            except(IndexError, ValueError):
-                print("Invalid value.")
+                except(IndexError, ValueError):
+                    print("Invalid value.")
 
+        # Append played card to list of player cards.
         played_cards.append(played_card)
 
         # Pick the first card played on this round as a secondary lead card,
@@ -284,6 +290,7 @@ while total_card_count:
         if player == players[0]:
             secondary_lead = played_card
 
+        # If this player is a CPU, print to the user which card was picked.
         if player.is_cpu:
             print(f"{player} plays a {played_card}!")
 
