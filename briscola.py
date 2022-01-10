@@ -29,13 +29,19 @@ class Player:
         Returns:
             Card: Played card.
         """
+        card = None
+
         if self.is_cpu:
             card = self.hand.pop(self.hand.index(random.choice(self.hand)))
         else:
-            # Remove 1 from the value passed by the user, so that cards start
-            # with a 1, not a 0.
-            index = int(input("Pick a card (use 1,2,3...): ")) - 1
-            card = self.hand.pop(index)
+            while not card:
+                try:
+                    # Remove 1 from the value passed by the user, so that cards
+                    # start with a 1, not a 0.
+                    index = int(input("Pick a card (use 1,2,3...): ")) - 1
+                    card = self.hand.pop(index)
+                except (IndexError, ValueError):
+                    print("Invalid value.")
 
         return card
 
@@ -193,7 +199,12 @@ if player_names:
 if cpu_player_names:
     number_of_players += len(cpu_player_names)
 
-assert MIN_NUMBER_OF_PLAYERS <= number_of_players <= MAX_NUMBER_OF_PLAYERS
+try:
+    assert MIN_NUMBER_OF_PLAYERS <= number_of_players <= MAX_NUMBER_OF_PLAYERS
+except AssertionError:
+    print(f"Number of players must be between {MIN_NUMBER_OF_PLAYERS}"
+          + f" and {MAX_NUMBER_OF_PLAYERS}.")
+    quit()
 
 # Generate a list of players.
 players = []
