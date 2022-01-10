@@ -37,8 +37,6 @@ class Player:
             index = int(input("Pick a card (use 1,2,3...): ")) - 1
             card = self.hand.pop(index)
 
-        print(f"{self} plays a {card}!")
-
         return card
 
     def pick_card(self):
@@ -52,23 +50,7 @@ class Player:
         card.owner = self
 
         self.hand.append(card)
-
-        if args.verbose:
-            print(f"{self} picks a {card}!")
-
-    def print_cards(self):
-        """Print the cards on the player's hand."""
-        cards = ", ".join([str(c) for c in self.hand])
-
-        if args.verbose:
-            print(f"{self} has no cards left." if not cards else
-                  f"{self}'s cards: {cards}")
-        elif not self.is_cpu:
-            print(f"Cards: {cards}")
-
-    def declare_round_victory(self):
-        """Print a message declaring the player won this round."""
-        print(f"{self} wins this round!")
+        return card
 
     def add_cards_to_stack(self, cards):
         """
@@ -272,9 +254,20 @@ while total_card_count:
     # Each player plays a card, which gets added to this round's played cards.
     for player in players:
         print(f"It's {player}'s turn!")
-        player.print_cards()
+
+        cards = ", ".join([str(c) for c in player.hand])
+
+        if args.verbose:
+            print(f"{player} has no cards left." if not cards else
+                  f"{player}'s cards: {cards}")
+        elif not player.is_cpu:
+            print(f"Cards: {cards}")
+
         card = player.play_card()
         played_cards.append(card)
+
+        if player.is_cpu:
+            print(f"{player} plays a {card}!")
 
     # Pick the first card played on this round as a secondary lead card, which
     # is used instead of the main lead card if none of the played cards matched
@@ -287,7 +280,7 @@ while total_card_count:
     # and make them declare a victory.
     round_winner = winning_card(played_cards, lead_card, secondary_lead).owner
     round_winner.add_cards_to_stack(played_cards)
-    round_winner.declare_round_victory()
+    print(f"{round_winner} wins this round!")
 
     # Reorder the player list so that this round's winner picks a card and
     # plays the next round first.
@@ -300,7 +293,11 @@ while total_card_count:
     # Then, update the total number of cards in player's hands.
     for player in players:
         if len(DECK) > 0:
-            player.pick_card()
+            card = player.pick_card()
+
+            if args.verbose:
+                print(f"{player} picks a {card}!")
+
         hand_card_count += len(player.hand)
 
     # Update the total number of cards and add one to the round counter.
