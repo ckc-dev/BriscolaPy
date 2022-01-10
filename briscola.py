@@ -12,9 +12,10 @@ import random
 class Player:
     """Defines a player object."""
 
-    def __init__(self, name):
+    def __init__(self, name, is_cpu):
         """Initialize instance."""
         self.name = name
+        self.is_cpu = is_cpu
         self.hand = []   # Player's hand of cards.
         self.stack = []  # Player's stack of won cards.
         self.points = 0
@@ -28,7 +29,11 @@ class Player:
         Returns:
             Card: Played card.
         """
-        card = self.hand.pop(self.hand.index(random.choice(self.hand)))
+        if self.is_cpu:
+            card = self.hand.pop(self.hand.index(random.choice(self.hand)))
+        else:
+            index = int(input("Pick a card: "))
+            card = self.hand.pop(index)
 
         print(f"{self} plays a {card}!")
 
@@ -165,19 +170,39 @@ CARDS_PER_PLAYER = 3
 PARSER = argparse.ArgumentParser(description=__doc__)
 PARSER.add_argument(
     'players',
-    metavar='players',
+    metavar='Player names.',
+    type=str,
+    nargs='*',
+    help='A list of names for players.',
+)
+PARSER.add_argument(
+    '-c',
+    '--cpu',
+    metavar='CPU player names.',
     type=str,
     nargs='+',
-    help='Player names'
+    help='A list of names for CPU players.'
 )
 args = PARSER.parse_args()
 
 # Initialize and limit number of players.
-number_of_players = len(args.players)
+player_names = args.players
+cpu_player_names = args.cpu
+number_of_players = 0
+
+if player_names:
+    number_of_players += len(player_names)
+if cpu_player_names:
+    number_of_players += len(cpu_player_names)
+
 assert MIN_NUMBER_OF_PLAYERS <= number_of_players <= MAX_NUMBER_OF_PLAYERS
 
 # Generate a list of players.
-players = [Player(player_name) for player_name in args.players]
+players = []
+if player_names:
+    players.extend([Player(name, False) for name in player_names])
+if cpu_player_names:
+    players.extend([Player(name, True) for name in cpu_player_names])
 
 # Generate and shuffle a deck of cards.
 DECK = [Card(name, suit, points, priority)
@@ -228,9 +253,9 @@ while total_card_count:
     # Each player plays a card, which gets added to this round's played cards.
     for player in players:
         print(f"It's {player.name}'s turn!")
+        player.print_cards()
         card = player.play_card()
         played_cards.append(card)
-        player.print_cards()
 
     # Pick the first card played on this round as a secondary lead card, which
     # is used instead of the main lead card if none of the played cards matched
@@ -256,7 +281,6 @@ while total_card_count:
     for player in players:
         if len(DECK) > 0:
             player.pick_card()
-            player.print_cards()
         hand_card_count += len(player.hand)
 
     # Update the total number of cards and add one to the round counter.
