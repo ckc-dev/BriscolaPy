@@ -248,12 +248,16 @@ while total_card_count:
 
     # Reset the number of cards on players' hands and the list of cards played
     # on this round.
+    secondary_lead = None
     hand_card_count = 0
     played_cards = []
 
     # Each player plays a card, which gets added to this round's played cards.
     for player in players:
         print(f"It's {player}'s turn!")
+
+        if secondary_lead and args.verbose:
+            print(f"Secondary lead card: {secondary_lead}")
 
         cards = ", ".join([str(c) for c in player.hand])
 
@@ -266,15 +270,14 @@ while total_card_count:
         card = player.play_card()
         played_cards.append(card)
 
+        # Pick the first card played on this round as a secondary lead card,
+        # which is used instead of the main lead card if none of the played
+        # cards matched with it.
+        if player == players[0]:
+            secondary_lead = card
+
         if player.is_cpu:
             print(f"{player} plays a {card}!")
-
-    # Pick the first card played on this round as a secondary lead card, which
-    # is used instead of the main lead card if none of the played cards matched
-    # with it.
-    secondary_lead = played_cards[0]
-    if args.verbose:
-        print(f"Secondary lead card: {secondary_lead}")
 
     # Pick this round's winner, add the cards played this round to their stack,
     # and make them declare a victory.
