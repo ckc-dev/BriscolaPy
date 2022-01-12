@@ -1,7 +1,7 @@
 extends Node
 
-const Card = preload("res://Card.gd")
-const Participant = preload("res://Participant.gd")
+export (PackedScene) var participant_scene
+export (PackedScene) var card_scene
 
 const CARDS = {
 	"1": [11, 9],
@@ -24,6 +24,9 @@ const SUITS = [
 ]
 
 const CARDS_PER_PLAYER = 3
+
+func update_message_label(message):
+	$VBoxContainer/Message.text = message
 
 func max_card(cards):
 	var max_card_priority = -INF
@@ -66,17 +69,23 @@ func _ready():
 		for name in CARDS:
 			var points = CARDS[name][0]
 			var priority = CARDS[name][1]
-			var card = Card.new(name, suit, points, priority)
+			var card = card_scene.instance()
+			card.setup(name, suit, points, priority)
 
 			deck.append(card)
 
 	deck.shuffle()
 
-	var anne = Participant.new("Anne")
-	var bob = Participant.new("Bob")
+	var anne = participant_scene.instance()
+	anne.setup("Anne")
+	
+	var bob = participant_scene.instance()
+	bob.setup("Bob")
+
 	var participants = [anne, bob]
 
 	for p in participants:
+		$VBoxContainer/ParticipantsContainer.add_child(p)
 		for i in range(CARDS_PER_PLAYER):
 			var card = deck.pop_front()
 			p.pick_card(card)
@@ -95,25 +104,27 @@ func _ready():
 		var played_cards = []
 
 		hand_card_count = 0
-
-		print()
-		print("Starting round %s!" % _round)
-		print("Lead card: %s" % lead_card)
-		print()
+		update_message_label("Starting round %s!" % _round)
+		yield(get_tree().create_timer(1), "timeout")
+		update_message_label("Lead card: %s" % lead_card)
+		yield(get_tree().create_timer(1), "timeout")
 
 		for p in participants:
-			print("It's %s's turn!" % p)
+			update_message_label("It's %s's turn!" % p)
+			yield(get_tree().create_timer(1), "timeout")
 			var played_card = p.play_card()
 			played_cards.push_back(played_card)
 
 			if p == participants[0]:
 				secondary_lead = played_card
 
-			print("%s plays a %s!" % [p, played_card])
+			update_message_label("%s plays a %s!" % [p, played_card])
+			yield(get_tree().create_timer(1), "timeout")
 
 		var round_winner = winning_card(played_cards, lead_card, secondary_lead)._owner
 		round_winner.add_cards_to_stack(played_cards)
-		print("%s wins this round!" % round_winner)
+		update_message_label("%s wins this round!" % round_winner)
+		yield(get_tree().create_timer(1), "timeout")
 
 		var winner_index = participants.find(round_winner)
 		var left = participants.slice(winner_index, -1)
@@ -129,12 +140,13 @@ func _ready():
 				var card = deck.pop_front()
 				p.pick_card(card)
 
-				print("%s picks a %s!" % [p, card])
+				update_message_label("%s picks a %s!" % [p, card])
+				yield(get_tree().create_timer(1), "timeout")
+
 			hand_card_count += p.hand.size()
 
 		total_card_count = hand_card_count + deck.size()
 		_round += 1
 
 	var game_winner = get_game_winner(participants)
-	print()
-	print("%s won the game with %s points!" % [game_winner, game_winner.points])
+	update_message_label("%s won the game with %s points!" % [game_winner, game_winner.points])
