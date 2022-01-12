@@ -6,7 +6,7 @@
 [ext_resource path="res://Card.tscn" type="PackedScene" id=4]
 
 [sub_resource type="DynamicFont" id=1]
-size = 60
+size = 30
 font_data = ExtResource( 2 )
 
 [node name="Main" type="Node"]
@@ -22,20 +22,66 @@ __meta__ = {
 "_edit_use_anchors_": false
 }
 
-[node name="VBoxContainer" type="VBoxContainer" parent="."]
-anchor_right = 1.0
+[node name="LeadCard" parent="." instance=ExtResource( 4 )]
+anchor_top = 0.5
+anchor_bottom = 0.5
+margin_left = 60.0
+margin_top = -150.0
+margin_right = 260.0
+margin_bottom = 130.0
+
+[node name="Label" type="Label" parent="LeadCard"]
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
 anchor_bottom = 1.0
-margin_left = 126.0
-margin_top = 71.0
-margin_right = -126.0
-margin_bottom = -71.0
+margin_left = -79.0
+margin_top = 6.0
+margin_right = 79.0
+margin_bottom = 42.0
+custom_fonts/font = SubResource( 1 )
+text = "LEAD CARD"
+align = 1
+valign = 1
 __meta__ = {
 "_edit_use_anchors_": false
 }
 
-[node name="Message" type="Label" parent="VBoxContainer"]
-margin_right = 1028.0
-margin_bottom = 71.0
+[node name="SecondaryLeadCard" parent="." instance=ExtResource( 4 )]
+visible = false
+anchor_left = 1.0
+anchor_top = 0.5
+anchor_right = 1.0
+anchor_bottom = 0.5
+margin_left = -260.0
+margin_top = -150.0
+margin_right = -60.0
+margin_bottom = 130.0
+
+[node name="Label" type="Label" parent="SecondaryLeadCard"]
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+margin_left = -79.0
+margin_top = 6.0
+margin_right = 79.0
+margin_bottom = 42.0
+custom_fonts/font = SubResource( 1 )
+text = "2nd LEAD"
+align = 1
+valign = 1
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Message" type="Label" parent="."]
+anchor_left = 0.5
+anchor_right = 0.5
+margin_left = -391.0
+margin_top = 17.0
+margin_right = 391.0
+margin_bottom = 53.0
 custom_fonts/font = SubResource( 1 )
 align = 1
 valign = 1
@@ -43,12 +89,14 @@ __meta__ = {
 "_edit_use_anchors_": false
 }
 
-[node name="ParticipantsContainer" type="VBoxContainer" parent="VBoxContainer"]
-margin_top = 75.0
-margin_right = 1028.0
-margin_bottom = 578.0
-size_flags_horizontal = 3
-size_flags_vertical = 3
+[node name="ParticipantsContainer" type="VBoxContainer" parent="."]
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+margin_left = -304.0
+margin_top = -649.0
+margin_right = 304.0
 __meta__ = {
 "_edit_use_anchors_": false
 }

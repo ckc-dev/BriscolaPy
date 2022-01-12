@@ -1,32 +1,32 @@
 extends Node
 
-export (PackedScene) var participant_scene
-export (PackedScene) var card_scene
+export(PackedScene) var participant_scene
+export(PackedScene) var card_scene
 
 const CARDS = {
 	"1": [11, 9],
-	"2": [0,  0],
+	"2": [0, 0],
 	"3": [10, 8],
-	"4": [0,  1],
-	"5": [0,  2],
-	"6": [0,  3],
-	"7": [0,  4],
-	"F": [2,  5],
-	"C": [3,  6],
-	"R": [4,  7]
+	"4": [0, 1],
+	"5": [0, 2],
+	"6": [0, 3],
+	"7": [0, 4],
+	"F": [2, 5],
+	"C": [3, 6],
+	"R": [4, 7],
 }
-
 const SUITS = [
 	"BASTONI",
 	"COPPE",
 	"DENARI",
-	"SPADE"
+	"SPADE",
 ]
+const CARDS_PER_PARTICIPANT = 3
 
-const CARDS_PER_PLAYER = 3
 
 func update_message_label(message):
-	$VBoxContainer/Message.text = message
+	$Message.text = message
+
 
 func max_card(cards):
 	var max_card_priority = -INF
@@ -41,7 +41,8 @@ func max_card(cards):
 
 	return max_card_arr[0]
 
-func winning_card(cards, lead_card, secondary_lead=null):
+
+func winning_card(cards, lead_card, secondary_lead = null):
 	var matches = []
 	for c in cards:
 		if c.suit == lead_card.suit:
@@ -51,6 +52,7 @@ func winning_card(cards, lead_card, secondary_lead=null):
 		return max_card(matches)
 	return winning_card(cards, secondary_lead)
 
+
 func get_game_winner(participants):
 	var winner = participants[0]
 
@@ -59,6 +61,7 @@ func get_game_winner(participants):
 			winner = p
 
 	return winner
+
 
 func _ready():
 	randomize()
@@ -72,30 +75,33 @@ func _ready():
 			var card = card_scene.instance()
 			card.setup(name, suit, points, priority)
 
-			deck.append(card)
+			deck.push_back(card)
 
 	deck.shuffle()
 
 	var anne = participant_scene.instance()
 	anne.setup("Anne")
-	
+
 	var bob = participant_scene.instance()
 	bob.setup("Bob")
 
 	var participants = [anne, bob]
 
 	for p in participants:
-		$VBoxContainer/ParticipantsContainer.add_child(p)
-		for i in range(CARDS_PER_PLAYER):
+		$ParticipantsContainer.add_child(p)
+		for __ in range(CARDS_PER_PARTICIPANT):
 			var card = deck.pop_front()
 			p.pick_card(card)
 
 	var lead_card = deck.pop_front()
+	$LeadCard._name = lead_card._name
+	$LeadCard.suit = lead_card.suit
+	$LeadCard.update_node()
 	deck.push_back(lead_card)
 
 	participants.shuffle()
 
-	var hand_card_count = participants.size() * CARDS_PER_PLAYER
+	var hand_card_count = participants.size() * CARDS_PER_PARTICIPANT
 	var total_card_count = hand_card_count + deck.size()
 	var _round = 1
 
@@ -106,8 +112,6 @@ func _ready():
 		hand_card_count = 0
 		update_message_label("Starting round %s!" % _round)
 		yield(get_tree().create_timer(1), "timeout")
-		update_message_label("Lead card: %s" % lead_card)
-		yield(get_tree().create_timer(1), "timeout")
 
 		for p in participants:
 			update_message_label("It's %s's turn!" % p)
@@ -117,6 +121,10 @@ func _ready():
 
 			if p == participants[0]:
 				secondary_lead = played_card
+				$SecondaryLeadCard._name = secondary_lead._name
+				$SecondaryLeadCard.suit = secondary_lead.suit
+				$SecondaryLeadCard.update_node()
+				$SecondaryLeadCard.show()
 
 			update_message_label("%s plays a %s!" % [p, played_card])
 			yield(get_tree().create_timer(1), "timeout")
