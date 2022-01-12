@@ -34,18 +34,16 @@ class Player:
         return (self.hand.pop(index) if index
                 else self.hand.pop(self.hand.index(random.choice(self.hand))))
 
-    def pick_card(self):
+    def pick_card(self, card):
         """
         Pick a card from the deck.
 
-        Picks a card from the deck, sets the player to be its owner, adds it to
-        the player's hand, and returns it.
+        Sets the player to be the owner of a card passed to this function and
+        adds it to the player's hand.
         """
-        card = DECK.pop(0)
         card.owner = self
 
         self.hand.append(card)
-        return card
 
     def add_cards_to_stack(self, cards):
         """
@@ -311,10 +309,11 @@ while total_card_count:
     # Then, update the total number of cards in player's hands.
     for player in players:
         if len(DECK) > 0:
-            picked_card = player.pick_card()
+            card = DECK.pop(0)
+            player.pick_card(card)
 
             if args.verbose:
-                print(f"{player} picks a {picked_card}!")
+                print(f"{player} picks a {card}!")
 
         hand_card_count += len(player.hand)
 
