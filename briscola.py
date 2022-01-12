@@ -22,7 +22,7 @@ class Player:
 
     def play_card(self, index=None):
         """
-        Remove a random card from the player's hand and return it.
+        Remove a card from the player's hand and return it.
 
         Args:
             index (int, optional): Index of card to be returned. If this is not
@@ -49,8 +49,8 @@ class Player:
         """
         Add a list of cards to the player's stack.
 
-        Adds a list of cards to the player's stack of won cards, then adds the
-        points for those cards to the player's points.
+        Adds a list of cards to the player's stack of won cards, and adds the
+        points for those cards to the player's total number of points.
 
         Args:
             cards (Card): List of cards.
@@ -104,14 +104,14 @@ def winning_card(cards, lead_card, secondary_lead=None):
     Returns the winning card of a round, by checking for cards in a list of
     cards played this round that match either the lead card suit, or, if no
     card matches it, the secondary lead card suit. If no card matches it
-    either, then it is chosen as the winner.
+    either, then it (the secondary lead card suit) is chosen as the winner.
 
-    If at any point, multiple cards match, then the card with the highest value
-    is chosen.
+    If at any point, multiple cards match, then the card with the highest
+    priority is chosen.
 
     Args:
-        cards (Card): List of cards played on a round.
-        lead_card (Card): Lead - or briscola - card.
+        cards (Card): List of cards to get winning card from.
+        lead_card (Card): Lead card used to compare other cards against.
         secondary_lead (Card, optional): Secondary lead card. Defaults to None.
 
     Returns:
@@ -129,7 +129,7 @@ def winning_card(cards, lead_card, secondary_lead=None):
 
 
 # Cards use the following format: `"NAME": (POINTS, PRIORITY)`, where `POINTS`
-# is the number of points that goes to players, and `PRIORITY` is the card
+# is the number of points that go to players, and `PRIORITY` is the card
 # priority, used to compare cards and decide which should win a round.
 CARDS = {
     "1": (11, 9),
@@ -141,13 +141,13 @@ CARDS = {
     "7": (0,  4),
     "F": (2,  5),  # Fante.
     "C": (3,  6),  # Cavallo.
-    "R": (4,  7)   # Re.
+    "R": (4,  7),  # Re.
 }
 SUITS = [
     "BASTONI",
     "COPPE",
     "DENARI",
-    "SPADE"
+    "SPADE",
 ]
 MIN_NUMBER_OF_PLAYERS = 2
 MAX_NUMBER_OF_PLAYERS = 4
@@ -159,7 +159,7 @@ PARSER.add_argument(
     metavar='Player names.',
     type=str,
     nargs='*',
-    help='A list of names for players.',
+    help='A list of names for players.'
 )
 PARSER.add_argument(
     '-c',
@@ -212,7 +212,7 @@ random.shuffle(DECK)
 if number_of_players == 3:
     DECK = [c for c in DECK if c.name != "2"]
 
-# Deal plyers' hands.
+# Deal players' hands.
 for player in players:
     for _ in range(CARDS_PER_PLAYER):
         card = DECK.pop(0)
@@ -251,7 +251,7 @@ while total_card_count:
     print(f"Lead card: {lead_card}")
     print()
 
-    # Each player plays a turn:
+    # Each player plays a turn.
     for player in players:
         # Print turn information.
         print(f"It's {player}'s turn!")
@@ -292,21 +292,20 @@ while total_card_count:
         if player.is_cpu:
             print(f"{player} plays a {played_card}!")
 
-    # Pick this round's winner, add the cards played this round to their stack,
-    # and make them declare a victory.
+    # Pick this round's winner, add the cards played this round to their stack.
     round_winner = winning_card(played_cards, lead_card, secondary_lead).owner
     round_winner.add_cards_to_stack(played_cards)
     print(f"{round_winner} wins this round!")
 
-    # Reorder the player list so that this round's winner picks a card and
-    # plays the next round first.
+    # Reorder the player list so that this round's winner is the first to pick
+    # a card and play the next round.
     winner_index = players.index(round_winner)
     new_player_order = players[winner_index:]
     new_player_order.extend(players[:winner_index])
     players = new_player_order
 
     # Each player picks a card, until there are no more cards in the deck.
-    # Then, update the total number of cards in player's hands.
+    # Then, the total number of cards in player's hands is updated.
     for player in players:
         if len(DECK) > 0:
             card = DECK.pop(0)
@@ -321,6 +320,6 @@ while total_card_count:
     total_card_count = len(DECK) + hand_card_count
     round += 1
 
-# Once the game is done, pick and print the overall game winner.
+# Once the game is done, pick the overall game winner.
 game_winner = max(players, key=lambda player: player.points)
 print(f"\n{game_winner} wins the game with {game_winner.points} points!")
