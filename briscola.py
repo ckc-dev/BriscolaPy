@@ -41,7 +41,7 @@ class Player:
         Sets the player to be the owner of a card passed to this function and
         adds it to the player's hand.
 
-	Args:
+        Args:
             card (Card): Card picked from the deck.
         """
         card.owner = self
