@@ -1,4 +1,4 @@
-# BriscolaPy
+# [BriscolaPy](https://github.com/ckc-dev/BriscolaPy)
 
 The classic Mediterranean trick-taking game. Now in your terminal.
 
